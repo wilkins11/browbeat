@@ -25,7 +25,8 @@
 - hosts: ceph
   remote_user: heat-admin
   vars:
-    # Place holder for now, unsure of what recommended tuned profile is.
+    min_FDs_per_process: 16384
+    min_kernel_pid_max: 500000
     tuned_profile: throughput-performance
   roles:
   - common

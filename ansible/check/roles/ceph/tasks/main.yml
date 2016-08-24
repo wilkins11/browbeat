@@ -6,5 +6,24 @@
 - name: Check Ceph cluster health status
   shell: ceph status
   register: ceph_status
+  changed_when: false
   failed_when: "'HEALTH_OK' not in '{{ ceph_status.stdout }}'"
   ignore_errors: True
+
+- name : Check file descriptor count
+  shell: ulimit -a|grep open|awk '{print $4}'
+  register: FDs_per_process
+  changed_when: no
+  failed_when: FDs_per_process.stdout|int < min_FDs_per_process
+
+- name : Check kernel.pid_max
+  shell: sysctl -qa |grep kernel.pid_max |awk '{print $3}'
+  register: kernel_pid_max
+  changed_when: no
+  failed_when: kernel_pid_max.stdout|int < min_kernel_pid_max
+
+- name : Check for ntpd
+  shell: ps -el |grep -v grep |grep ntpd
+  register: ntpd_running
+  changed_when: no
+  failed_when: ntpd_running.rc != 0
